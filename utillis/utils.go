@@ -64,3 +64,35 @@ func GetRequest(host *url.URL, auth, path string) ([]byte, error) {
 	}
 	return body, nil
 }
+
+func PostRequest(host *url.URL, auth, path string, args ...string) error {
+	endpoint := host
+	endpoint = endpoint.JoinPath(path)
+
+	req, err := http.NewRequest("POST", endpoint.String(), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	if req.Header == nil {
+		req.Header = make(http.Header)
+	}
+	req.Header.Add("Authorization", auth)
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 401 {
+		return AuthFailed
+	}
+	return nil
+}

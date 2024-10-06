@@ -7,16 +7,16 @@ import (
 	"github.com/eterline/opnsense-api/utillis"
 )
 
-type Core OpnsenseClient
+type Firmware OpnsenseClient
 
-func InitCore(cl OpnsenseClient) Core {
-	return Core(cl)
+func InitFirmware(cl OpnsenseClient) Firmware {
+	return Firmware(cl)
 }
 
 type FirmwareData struct {
-	Firmware Firmware `json:"firmware"`
+	Firmware FirmwareParam `json:"firmware"`
 }
-type Firmware struct {
+type FirmwareParam struct {
 	Mirror       string `json:"mirror"`
 	Flavour      string `json:"flavour"`
 	Plugins      string `json:"plugins"`
@@ -144,7 +144,7 @@ type RunningStatus struct {
 	Status string `json:"status"`
 }
 
-func (oc *Core) FirmwareGet() FirmwareData {
+func (oc *Firmware) FirmwareGet() FirmwareData {
 	var res FirmwareData
 	body, err := utillis.GetRequest(oc.HostURL, oc.BasicToken, "api/core/firmware/get")
 	if err != nil {
@@ -157,7 +157,7 @@ func (oc *Core) FirmwareGet() FirmwareData {
 	return res
 }
 
-func (oc *Core) FirmwareOptions() FirmwareOpts {
+func (oc *Firmware) FirmwareOptions() FirmwareOpts {
 	var res FirmwareOpts
 	body, err := utillis.GetRequest(oc.HostURL, oc.BasicToken, "api/core/firmware/getOptions")
 	if err != nil {
@@ -170,7 +170,7 @@ func (oc *Core) FirmwareOptions() FirmwareOpts {
 	return res
 }
 
-func (oc *Core) FirmwareInfo() FirmwareInfo {
+func (oc *Firmware) FirmwareInfo() FirmwareInfo {
 	var res FirmwareInfo
 	body, err := utillis.GetRequest(oc.HostURL, oc.BasicToken, "api/core/firmware/info")
 	if err != nil {
@@ -183,7 +183,7 @@ func (oc *Core) FirmwareInfo() FirmwareInfo {
 	return res
 }
 
-func (oc *Core) FirmwareRunning() RunningStatus {
+func (oc *Firmware) FirmwareRunning() RunningStatus {
 	var res RunningStatus
 	body, err := utillis.GetRequest(oc.HostURL, oc.BasicToken, "api/core/firmware/running")
 	if err != nil {
@@ -194,4 +194,12 @@ func (oc *Core) FirmwareRunning() RunningStatus {
 		log.Panic(err)
 	}
 	return res
+}
+
+func (oc *DhcpV6) Reboot() error {
+	return utillis.PostRequest(oc.HostURL, oc.BasicToken, "api/core/firmware/reboot")
+}
+
+func (oc *DhcpV6) PowerOff() error {
+	return utillis.PostRequest(oc.HostURL, oc.BasicToken, "api/core/firmware/poweroff")
 }
